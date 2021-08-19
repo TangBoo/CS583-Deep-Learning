@@ -160,9 +160,7 @@ def train(**kwargs):
             optimizer.zero_grad()
             seg, ancOutput, boxOutput = model(input)
 
-            box_loss = t.tensor(0.).cuda()
-            anc_loss = t.tensor(0.).cuda()
-            seg_loss = t.tensor(0.).cuda()
+            box_loss, anc_loss, seg_loss= 0, 0, 0
             temp_seg = SegCriterion(seg, mask, segIdx)
             if not t.isnan(temp_seg):
                 seg_loss += temp_seg
@@ -180,7 +178,7 @@ def train(**kwargs):
                 vis.log("Nan Loss: Seg:{}, Box:{}, Anc:{}".format(myStr(seg_loss), myStr(box_loss), myStr(anc_loss)))
                 continue
 
-            loss_counter += loss.item()
+            loss_counter += t2i(loss)
             loss.backward()
             optimizer.step()
 
