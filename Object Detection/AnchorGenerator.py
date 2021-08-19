@@ -1,5 +1,4 @@
 import torch
-
 import Config as config
 import numpy as np
 import torch as t
