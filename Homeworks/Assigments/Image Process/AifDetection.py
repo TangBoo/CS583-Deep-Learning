@@ -77,9 +77,9 @@ def modeNum(param_map, mode='mean'):
     return int(ans)
 
 
-def openOperation(mask):
-    dilation_kernal = skimage.morphology.square(2)
-    erod_kernel = skimage.morphology.square(2)
+def openOperation(mask, dilation_w=2, erod_w=2):
+    dilation_kernal = skimage.morphology.square(dilation_w)
+    erod_kernel = skimage.morphology.square(erod_w)
     erod = skimage.morphology.erosion(mask, erod_kernel)
     dilation = skimage.morphology.dilation(erod, dilation_kernal)
     return dilation
