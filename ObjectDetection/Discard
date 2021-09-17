@@ -1,0 +1,35 @@
+def nms(bboxes, anchor, threshold=0.5, mode='center'):
+    mode = mode.lower()
+    if mode not in ['center', 'box']:
+        raise ValueError
+
+    if not (t.is_tensor(bboxes) or t.is_tensor(anchor)):
+        raise ValueError("Input should be Tensor")
+
+    if mode == 'center':
+        bboxes = cnt2box(bboxes)
+
+    if not len(anchor):
+        return
+
+    ans = []
+    sortIdx = t.argsort(anchor, dim=0, descending=True).to(anchor.device)
+    priQueue = t.index_select(input=bboxes, index=sortIdx.view(-1), dim=0).tolist()
+    while priQueue:
+        top = priQueue.pop(0)
+        priQueue = [box for box in priQueue if overlap(box, top) < threshold]
+        ans.append(top)
+
+    return t.tensor(ans)
+
+def overlap(box1, box2):
+    # overlap
+    delta_h = max(0, (min(box1[0], box2[0]) - max(box1[2], box2[2])))
+    delta_w = max(0, (min(box1[3], box2[3]) - max(box1[1], box2[1])))
+    interoverlap = delta_h * delta_w
+    # area:
+    area1 = (box1[0] - box1[2]) * (box1[3] - box1[1])
+    area2 = (box2[0] - box2[2]) * (box2[3] - box2[1])
+    union = area1 + area2 - interoverlap
+    ans = interoverlap / (union + 1e-6)
+    return ans
